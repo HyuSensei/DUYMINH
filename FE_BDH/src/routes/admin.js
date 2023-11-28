@@ -3,6 +3,8 @@ const router = express.Router();
 const apiAdmin = require("../api/admin/apiAdmin");
 const apiUser = require("../api/admin/apiUser");
 const apiProduct = require("../api/admin/apiProduct");
+const apiCategory = require("../api/admin/apiCategory");
+const apiBrand = require("../api/admin/apiBrand");
 const apiOrderManagement = require("../api/admin/apiOrderManagement");
 const upload = require("../middleware/UploadImg");
 const middleware = require("../middleware/middleware");
@@ -20,106 +22,128 @@ router.get("/logoutAdmin", (req, res) => {
 });
 //product
 router.get(
-  "/admin/product",
+  "/admin/products",
   middleware.checkPremission,
-  apiProduct.getProductHome2
+  apiProduct.indexproduct
 );
 router.get(
-  "/admin/product/page/:currentPage",
+  "/admin/products/create",
   middleware.checkPremission,
-  apiProduct.getProductHome
-);
-router.get(
-  "/admin/product/edit/:id",
-  middleware.checkPremission,
-  apiProduct.getProductDetail
+  apiProduct.getAddProduct
 );
 router.post(
-  "/admin/product/edit",
+  "/admin/products/store",
+  middleware.checkPremission,
+  upload.single("image"),
+  apiProduct.storeProduct
+);
+router.get(
+  "/admin/products/edit/:id",
+  middleware.checkPremission,
+  apiProduct.editProduct
+);
+router.post(
+  "/admin/products/update",
   middleware.checkPremission,
   upload.single("image"),
   apiProduct.updateProduct
 );
 router.get(
-  "/admin/product/delete/:id",
+  "/admin/products/delete/:id",
   middleware.checkPremission,
   apiProduct.deleteProduct
 );
-router.post(
-  "/admin/product",
-  middleware.checkPremission,
-  apiProduct.getProductByName
-);
-router.get(
-  "/admin/product/:name/page/:currentPage",
-  middleware.checkPremission,
-  apiProduct.getProductByNamePage
-);
-router.get(
-  "/admin/product/create",
-  middleware.checkPremission,
-  apiProduct.getCreateProduct
-);
-router.post(
-  "/admin/product/create",
-  upload.single("image"),
-  middleware.checkPremission,
-  apiProduct.createProduct
-);
-
-//user
-router.get("/admin/user", middleware.checkPremission, apiUser.getUserHome);
-router.get(
-  "/admin/user/page/:currentPage",
-  middleware.checkPremission,
-  apiUser.paginationUser
-);
-router.post(
-  "/admin/user/",
-  middleware.checkPremission,
-  apiUser.getUserByUserName
-);
-router.get(
-  "/admin/user/:username/page/:currentPage",
-  middleware.checkPremission,
-  apiUser.getUserByUserNamePage
-);
-router.get(
-  "/admin/user/update/:id",
-  middleware.checkPremission,
-  apiUser.getUpdateUser
-);
-router.post(
-  "/admin/user/update",
-  middleware.checkPremission,
-  apiUser.UpdateUser
-);
-router.get(
-  "/admin/user/delete/:id",
-  middleware.checkPremission,
-  apiUser.deleteUser
-);
-
 //order
 router.get(
-  "/admin/order",
+  "/admin/orders",
   middleware.checkPremission,
-  apiOrderManagement.getOrderHome
+  apiOrderManagement.indexOrder
 );
 router.get(
-  "/admin/order/confirm/:orderId",
-  middleware.checkPremission,
-  apiOrderManagement.confirmOrder
-);
-router.get(
-  "/admin/order/delete/:orderId",
+  "/admin/orders/delete/:id",
   middleware.checkPremission,
   apiOrderManagement.deleteOrder
 );
 router.get(
-  "/admin/order/page/:currentPage",
+  "/admin/orders/confirm/:id",
   middleware.checkPremission,
-  apiOrderManagement.paginationOrder
+  apiOrderManagement.confirmOrder
+);
+//user
+router.get("/admin/users", middleware.checkPremission, apiUser.indexUser);
+//category
+router.get(
+  "/admin/categories",
+  middleware.checkPremission,
+  apiCategory.indexCategory
+);
+router.get(
+  "/admin/categories/create",
+  middleware.checkPremission,
+  (req, res) => {
+    let erro = req.flash("erro");
+    let success = req.flash("success");
+    res.render("admin/create_category.ejs", { erro, success });
+  }
+);
+router.get(
+  "/admin/categories/edit/:id",
+  middleware.checkPremission,
+  apiCategory.editCategory
+);
+router.post(
+  "/admin/categories/store",
+  middleware.checkPremission,
+  apiCategory.storeCategory
+);
+router.post(
+  "/admin/categories/update",
+  middleware.checkPremission,
+  apiCategory.updateCategory
+);
+router.get(
+  "/admin/categories/delete/:id",
+  middleware.checkPremission,
+  apiCategory.deleteCategory
+);
+//brand
+router.get("/admin/brands", middleware.checkPremission, apiBrand.indexBrand);
+router.get("/admin/brands/create", middleware.checkPremission, (req, res) => {
+  let erro = req.flash("erro");
+  let success = req.flash("success");
+  res.render("admin/create_brand.ejs", middleware.checkPremission, {
+    erro,
+    success,
+  });
+});
+router.get(
+  "/admin/brands/edit/:id",
+  middleware.checkPremission,
+  apiBrand.editBrand
+);
+router.post(
+  "/admin/brands/store",
+  middleware.checkPremission,
+  apiBrand.storeBrand
+);
+router.post(
+  "/admin/brands/update",
+  middleware.checkPremission,
+  apiBrand.updateBrand
+);
+router.get(
+  "/admin/brands/delete/:id",
+  middleware.checkPremission,
+  apiBrand.deleteBrand
 );
 
+router.get("/logoutAdmin", (req, res) => {
+  res.cookie("jwtadmin", "", { maxAge: 0 });
+  res.cookie("adminUserId", "", { maxAge: 0 });
+  res.cookie("adminname", "", { maxAge: 0 });
+  res.cookie("adminemail", "", { maxAge: 0 });
+  res.cookie("adminusername", "", { maxAge: 0 });
+  res.cookie("adminaddress", "", { maxAge: 0 });
+  return res.redirect("/loginAdmin");
+});
 module.exports = router;

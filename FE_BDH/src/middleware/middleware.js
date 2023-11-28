@@ -46,10 +46,9 @@ const checkPremission = async (req, res, next) => {
         message: "vui long dang nhap vào trang admin",
         url: "/loginAdmin",
       });
-
     }
     let decoded = verifyToken(token);
-    console.log('decode', decoded)
+    console.log("decode", decoded);
     if (decoded == null) {
       return res.render("success.ejs", {
         message: "Bạn không có quyền truy cập trang Admin",
@@ -59,7 +58,7 @@ const checkPremission = async (req, res, next) => {
     let idUser = decoded.user_id;
 
     let getUser = await axios.get(process.env.BASE_URL + `user/${idUser}`);
-    console.log(getUser.data.user.role_id)
+    console.log(getUser.data.user.role_id);
     if (getUser.data.user.role_id == 2) {
       next();
     } else {
@@ -79,7 +78,7 @@ const verifyToken = (token) => {
   try {
     decoded = jwt.verify(token, key);
     data = decoded;
-    console.log("a", decoded)
+    console.log("a", decoded);
   } catch (error) {
     console.log(error);
   }
@@ -88,5 +87,5 @@ const verifyToken = (token) => {
 module.exports = {
   checkAuth,
   checkRequireLogin,
-  checkPremission
+  checkPremission,
 };

@@ -70,7 +70,7 @@ const loginAdmin = async (req, res) => {
       res.cookie("adminaddress", getUser.data.user.address, {
         maxAge: 24 * 60 * 60 * 1000,
       });
-      return res.redirect("/admin/product");
+      return res.redirect("/admin/products");
     } else {
       return res.render("admin/loginAdmin.ejs", { erro });
     }

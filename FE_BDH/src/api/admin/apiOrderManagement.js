@@ -1,83 +1,65 @@
 const axios = require("axios");
 require("dotenv").config();
-const getOrderHome = async (req, res) => {
+
+const indexOrder = async (req, res) => {
   try {
-    let dataOrder = await axios.get(process.env.BASE_URL + `getOrder/page/1`);
-    let dataOrderALL = await axios.get(process.env.BASE_URL + `getAllOrder`);
-    //console.log("Data order:", dataOrder.data.data);
-    return res.render("admin/orderAdmin.ejs", {
-      dataOrder: dataOrder.data.order,
-      countdataOrder: dataOrderALL.data.order.length,
+    let erro = req.flash("erro");
+    let success = req.flash("success");
+    const page = req.query.page || 1;
+    const params = {
+      page,
+    };
+    let data_product = await axios.get(process.env.BASE_URL + `admin/orders`, {
+      params,
+    });
+    return res.render("admin/order.ejs", {
+      orders: data_product.data.orders,
+      current_page: data_product.data.current_page,
+      total_page: data_product.data.total_page,
+      erro,
+      success,
     });
   } catch (error) {
     console.log(error);
   }
 };
-const confirmOrder = async (req, res) => {
-  try {
-    orderId = req.params.orderId;
-    console.log(orderId);
-    let dataOrder = await axios.put(
-      process.env.BASE_URL + `confirmOrder/${orderId}`
-    );
-    console.log("Data order:", dataOrder);
-    if (dataOrder.data.success !== false) {
-      return res.render("success.ejs", {
-        message: "Xác nhận đơn hàn thành công",
-        url: "/admin/order/",
-      });
-    } else {
-      return res.render("success.ejs", {
-        message: "Xác nhận đơn hàn thất bại",
-        url: "/admin/order/",
-      });
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
+
 const deleteOrder = async (req, res) => {
+  const order_id = req.params.id;
   try {
-    orderId = req.params.orderId;
-    console.log(orderId);
-    let dataOrder = await axios.delete(
-      process.env.BASE_URL + `deleteOrder/${orderId}`
+    let data = await axios.delete(
+      process.env.BASE_URL + `admin/orders/delete/${order_id}`
     );
-    //console.log("Data order:", dataOrder);
-    if (dataOrder.data.success !== false) {
-      return res.render("success.ejs", {
-        message: "Xóa đơn hàn thành công",
-        url: "/admin/order/",
-      });
-    } else {
-      return res.render("success.ejs", {
-        message: "Xóa đơn hàn thất bại",
-        url: "/admin/order/",
-      });
+    if (data.data.success !== false) {
+      req.flash("success", `${data.data.message}`);
+      res.redirect(`/admin/orders`);
     }
   } catch (error) {
     console.log(error);
+    req.flash("erro", `${error.response.data.detail}`);
+    res.redirect(`/admin/orders`);
   }
 };
-const paginationOrder = async (req, res) => {
+
+const confirmOrder = async (req, res) => {
+  const order_id = req.params.id;
   try {
-    let currentPage = req.params.currentPage;
-    let dataOrderALL = await axios.get(process.env.BASE_URL + `getAllOrder`);
-    let dataOrder = await axios.get(
-      process.env.BASE_URL + `getOrder/page/${currentPage}`
+    let data = await axios.get(
+      process.env.BASE_URL + `admin/orders/confirm/${order_id}`
     );
-    console.log("Data order:", dataOrderALL.data.order.length);
-    return res.render("admin/orderAdmin.ejs", {
-      dataOrder: dataOrder.data.order,
-      countdataOrder: dataOrderALL.data.order.length,
-    });
+    if (data.data.success !== false) {
+      req.flash("success", `${data.data.message}`);
+      res.redirect(`/admin/orders`);
+    }
   } catch (error) {
     console.log(error);
+    req.flash("erro", `${error.response.data.detail}`);
+    res.redirect(`/admin/orders`);
   }
 };
+
 module.exports = {
-  getOrderHome,
   confirmOrder,
   deleteOrder,
-  paginationOrder,
+  indexOrder,
 };
