@@ -26,6 +26,7 @@ class Brand(Base):
     __tablename__ = 'brands'
     id= Column(Integer, primary_key=True, index=True)
     name= Column(String(250))
+    products = relationship("Product", cascade="all, delete")
     createdAt = Column(DateTime, default=datetime.utcnow)
     updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -36,8 +37,8 @@ class Product(Base):
     image= Column(String(250))
     price= Column(Float)
     description= Column(Text)
-    brand_id= Column(Integer,ForeignKey('brands.id'))
-    category_id= Column(Integer,ForeignKey('categories.id'))
+    brand_id= Column(Integer,ForeignKey('brands.id',ondelete="CASCADE"))
+    category_id = Column(Integer, ForeignKey('categories.id', ondelete="CASCADE"))
     createdAt = Column(DateTime, default=datetime.utcnow)
     updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -45,6 +46,7 @@ class Category(Base):
     __tablename__='categories'
     id= Column(Integer, primary_key=True, index=True)
     name= Column(String(250))
+    products = relationship("Product", cascade="all, delete")
     createdAt = Column(DateTime, default=datetime.utcnow)
     updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -57,13 +59,14 @@ class Order(Base):
     phone= Column(String(250))
     total= Column(Float)
     user_id= Column(Integer, ForeignKey('users.id'))
+    order_products = relationship("OrderProduct", cascade="all, delete")
     createdAt = Column(DateTime, default=datetime.utcnow)
     updatedAt = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 class OrderProduct(Base):
     __tablename__ ='order_products'
     id= Column(Integer, primary_key=True, index=True)
-    order_id= Column(Integer, ForeignKey('orders.id'))
+    order_id = Column(Integer, ForeignKey('orders.id', ondelete="CASCADE"))
     product_id= Column(Integer, ForeignKey('products.id'))
     quantity= Column(Integer)
     createdAt = Column(DateTime, default=datetime.utcnow)

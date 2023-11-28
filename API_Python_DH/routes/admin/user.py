@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Path
+from fastapi import APIRouter, HTTPException, status, Path,Query
 from controllers.admin import UserController
 import models
 from database import SessionLocal
@@ -83,6 +83,17 @@ async def deleteUsers(user_id: int):
     try:
         db_user  = UserController.deleteUser(user_id)
         return db_user
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        )
+
+######################
+@router.get("/api/v1/admin/users",status_code=status.HTTP_200_OK)
+def indexUser(page: int = Query(1, ge=1)):
+    try:
+        db_product  = UserController.handleGetUser(page)
+        return db_product
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)

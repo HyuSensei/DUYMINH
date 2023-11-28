@@ -2,6 +2,7 @@ from fastapi import HTTPException, status
 from database import SessionLocal
 from models import User
 from sqlalchemy import func
+import models
 
 def getUsers(currentPage):
     try:
@@ -216,3 +217,20 @@ def deleteUser(user_id):
             "message":"Xóa người dùng thất bại!",
             "err": e
         }
+
+#######################
+def handleGetUser(page):
+    db=SessionLocal()
+    get_user= db.query(models.User)
+    limit = 8
+    start = (page - 1) * limit
+    total = get_user.count()
+    users = get_user.offset(start).limit(limit).all()
+    total_page = (total // limit) + (1 if total % limit > 0 else 0)
+    current_page = page if page <= total_page else total_page
+    return {
+        "success":True,
+        "users":users,
+        "total_page":total_page,
+        "current_page":current_page
+    }
